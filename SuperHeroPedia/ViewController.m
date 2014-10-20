@@ -7,8 +7,12 @@
 //
 
 #import "ViewController.h"
+#import "Superhero.h"
 
-@interface ViewController ()
+@interface ViewController () <UITableViewDataSource, UITableViewDelegate>
+
+@property (nonatomic, strong) NSArray *heroes;
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @end
 
@@ -16,12 +20,44 @@
             
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+
+    [Superhero retrieveSuperheroesWithCompletion:^(NSArray *superheroes) {
+        self.heroes = superheroes;
+    }];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void) setHeroes:(NSArray *)heroes
+{
+    _heroes = heroes;
+    [self.tableView reloadData];
 }
+
+#pragma mark - Tableview Methods
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return self.heroes.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"superHeroCell"];
+    
+    Superhero *superhero = [self.heroes objectAtIndex:indexPath.row];
+    cell.textLabel.text =  superhero.name;
+    cell.detailTextLabel.text = superhero.textDescription;
+    cell.detailTextLabel.numberOfLines = 2;
+
+//    NSURL *url = [NSURL URLWithString:[superhero objectForKey:@"avatar_url"]];
+//    [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:url] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+//        [cell.imageView setImage:[UIImage imageWithData:data]];
+//        [cell layoutSubviews];
+//    }];
+
+    return cell;
+}
+
+
+
 
 @end
